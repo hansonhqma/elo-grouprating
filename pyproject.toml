@@ -12,4 +12,4 @@ license = { text = "MIT" }
 dependencies = []
 
 [tool.setuptools]
-packages = ["movie_elo"]
+packages = ["movie_elo", "movie_beli"]

@@ -611,3 +611,17 @@ pytest
 ```
 
 The suite covers the worked example, order independence, conservation, judge selection, absences, validation, membership changes, every extension, JSON round trips, and the report renderers.
+
+## Beli-style rankings (experimental, independent library)
+
+A separate pure-Python package, `movie_beli`, ranks movies in the style of the Beli app: a member picks a bucket (Liked / Fine / Didn't like), answers a few "which did you like more?" questions, and gets a 0–10 score per movie, a community score, and a leaderboard of members by the scores their recommendations receive. It is a stateless library with no UI: the host app (the hosted page lives in [reel-club](https://github.com/hansonhqma/reel-club)) stores the ranking JSON and the in-progress comparison state itself. It does not use or change `movie_elo`. Spec and integration notes: [docs/beli-rankings.md](docs/beli-rankings.md).
+
+```python
+from movie_beli import Insertion, Rankings, PREFER_NEW
+
+r = Rankings(["Alex", "Bea"]); r.submit_movie("Heat", "Alex"); r.submit_movie("Drive", "Alex")
+r.rank_movie("Bea", "Heat", "liked", ask=lambda new, old: PREFER_NEW)   # answers come from a callable...
+state = r.start_ranking("Bea", "Drive", "liked")                        # ...or one step at a time:
+state = Insertion.from_dict(state.to_dict()).answer(PREFER_NEW)         # store state.to_dict() between requests
+r.finish_ranking(state); data = r.to_dict()                              # [row.to_dict() for row in r.leaderboard()]
+```
